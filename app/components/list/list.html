@@ -10,29 +10,53 @@
     <script>
         var app = angular.module("myList", []);
         app.controller("myListController", function($scope) {
-            $scope.products = ["Milk", "Bread", "Cheese"];
-            $scope.addItem = function () {
-                $scope.errortext = "";
-                if (!$scope.addMe) {return;}
-                if ($scope.products.indexOf($scope.addMe) == -1) {
-                    $scope.products.push($scope.addMe);
+            <!-- Video functionality-->
+            $scope.addVideo = function () {
+                $scope.errortextVideo = "";
+                if (!$scope.addMeVideo) {return;}
+                if ($scope.videos.indexOf($scope.addMeVideo) == -1) {
+
+                    $scope.videos.push({url: $scope.addMeVideo, date: new Date()});
                 } else {
-                    $scope.errortext = "The item is already in your list.";
+                    $scope.errortextVideo = "The video is already in your list.";
                 }
             };
-            $scope.removeItem = function (x) {
-                $scope.products.splice(x, 1);
-            }
+            $scope.removeVideo = function (x) {
+                $scope.videos.splice(x, 1);
+            };
+            $scope.videos = [
+                {
+                    "url": "https://www.youtube.com/watch?v=mbwUs1rnuQg",
+                    "date": "2016-05-11"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=7PmUtmfTmbg",
+                    "date": "2016-05-11"
+                }
+            ];
         });
+        app.filter('trusted', ['$sce', function ($sce) {
+            return function(url) {
+                var video_id = url.split('v=')[1].split('&')[0];
+                return $sce.trustAsResourceUrl("https://www.youtube.com/embed/" + video_id);
+            };
+        }]);
     </script>
-    <div ng-app="myList" data-ng-controller="myListController">
+    <div ng-app="myList" ng-controller="myListController">
         <ul>
-            <li ng-repeat="x in products">{{x}}
-                <span ng-click="removeItem($index)">&times;</span>
+            <li ng-repeat="video in videos | orderBy: '-date'"  style="padding:20px">
+                <div>
+                    <iframe width="560" height="315" ng-src="{{video.url | trusted}}"
+                            frameborder="0" allowfullscreen></iframe>
+                    <!--  Comments
+                    <p>Display output for control reasons: {{video.url | trusted}}</p>
+                    -->
+                    <span class="closingX" ng-click="removeVideo($index)">&times;</span>
+                </div>
             </li>
-            <input ng-model="addMe">
-            <button ng-click="addItem()">Add</button>
-            <p>{{errortext}}</p>
+            <input ng-model="addMeVideo">
+            <button ng-click="addVideo()">Add video</button>
+            <p>{{errortextVideo}}</p>
         </ul>
     </div>
 </body>
